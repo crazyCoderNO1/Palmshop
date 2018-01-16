@@ -7,9 +7,12 @@
 *.la
 *.lai
 *.so
-*.dll
 *.dylib
-
+*.cmd
+# temporary file
+log.txt
+# architecture file
+Plamshop.EAP
 # Qt-es
 
 /.qmake.cache
