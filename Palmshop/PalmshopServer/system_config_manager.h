@@ -19,25 +19,36 @@ class SystemConfigManager : public QObject {
      */
     enum SystemConfigType {
         //系统全局配置
-        kSystemShopType = 0,///商店类型-饭店、小商品
+        kConfigShopType = 0,///商店类型-饭店、小商品
+        kConfigAdministratorAccount,///店铺管理员账号,若连锁请使用服务端登陆账号
+        kConfigAdministratorPassword,///店铺管理员密码
+        //连锁店铺配置
+        kConfigMultipleShop = 100,///连锁店铺
+        kConfigHeadquartersHost,///总部服务器主机名或IP地址
+        kConfigHeadquartersPort,///总部服务器端口号
+        kConfigShopName,///当前店铺的名字或唯一id
+        kConfigShopId,///当前店铺的唯一id,提供名称和id分离的识别方式，以id为识别标注
         //数据库
-        kSqlUserName = 100, ///MySQL用户名
-        kSqlUserpassword,   ///MySQL密码
-        kSqlHost,           ///MySQL数据库主机名或IP地址
-        kSqlPort,           ///MySQL服务器的端口号
-        kSqlDbName,         ///MySQL数据库名称
+        kConfigSqlUserName = 200, ///MySQL用户名
+        kConfigSqlUserPassword,   ///MySQL密码
+        kConfigSqlHost,           ///MySQL数据库主机名或IP地址
+        kConfigSqlPort,           ///MySQL服务器的端口号
+        kConfigSqlDbName,         ///MySQL数据库名称
     };
     Q_ENUM(SystemConfigType)
     /**
-     * @brief 析构函数
+     * @brief 商店类型枚举
      */
-    ~SystemConfigManager();
+    enum ShopType {
+        kShopTypeRestaurant,///饭店
+        kShopTypeRetailStore,///零售店
+    };
     /**
      * @brief 单例模式，获取实例化对象
      * @param 无
      * @return 单例对象
      */
-    static SystemConfigManager* GetInstance();
+    static SystemConfigManager * GetInstance();
     /**
      * @brief 单例模式，主动销毁实例化对象
      * @param 无
@@ -74,6 +85,6 @@ class SystemConfigManager : public QObject {
         }
     };
     static SystemConfigManager singleton_del_;///程序结束时销毁
-    static SystemConfigManager *instance_;       //单例对象指针
+    static SystemConfigManager *instance_;    //单例对象指针
 };
 #endif // SYSTEM_CONFIG_MANAGER_H

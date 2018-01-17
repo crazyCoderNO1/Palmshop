@@ -39,8 +39,10 @@ void CustomOutputMessage(QtMsgType type,
     file.close();
     if(type == QtFatalMsg) {
         QMessageBox::critical(nullptr, "致命错误",
-                              QString("%2\r\n%1\r\n请解决问题后重新启动程序").
+                              QString("%2\r\n%1\r\n请解决问题后重新启动程序\r\n"
+                                      "问题反馈：techieliang@qq.com").
                               arg(msg).arg(current_date));
+        exit(0);
     }
 }
 
@@ -50,8 +52,6 @@ int main(int argc, char *argv[]) {
 #ifndef QT_DEBUG
     qInstallMessageHandler(CustomOutputMessage);
 #endif
-    qDebug("123");
-    qFatal("123");
     MainWindow w;
     w.show();
 
