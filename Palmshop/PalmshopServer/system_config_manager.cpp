@@ -9,6 +9,8 @@
 #include "predef.h"
 //私有静态成员
 namespace system_config_manager_private {
+//配置未读取到的默认值
+const static QString kDefaultValue = "defaultValue";
 //互斥量
 static QMutex mutex_;
 //枚举-字符串映射
@@ -21,7 +23,7 @@ static QMap<SystemConfigManager::SystemConfigType, QVariant> config_map_;
  */
 void ReadConfigFile (QSettings *configs) {
     for(int i = 0, num = config_enum_.keyCount(); i < num; ++i) {
-        QVariant config = configs->value(config_enum_.key(i), "defaultValue");
+        QVariant config = configs->value(config_enum_.key(i), kDefaultValue);
         if(config.toString() == "defaultValue")
             Q_ASSERT(QString("config read error").isEmpty());
         config_map_.insert(static_cast<SystemConfigManager::SystemConfigType>
@@ -110,7 +112,8 @@ void SystemConfigManager::SetConfig
 //获取配置值
 QVariant SystemConfigManager::GetConfig(SystemConfigManager::
                                         SystemConfigType type) {
-    return system_config_manager_private::config_map_.value(type, QVariant());
+    return system_config_manager_private::config_map_.value(type,
+            system_config_manager_private::kDefaultValue);
 }
 //构造函数
 SystemConfigManager::SystemConfigManager() {
