@@ -10,7 +10,7 @@
  * @param msg 消息内容
  */
 void CustomOutputMessage(QtMsgType type,
-                         const QMessageLogContext &context,
+                         const QMessageLogContext &,
                          const QString &msg) {
     QString message_type;
     switch(type) {
@@ -40,8 +40,9 @@ void CustomOutputMessage(QtMsgType type,
     if(type == QtFatalMsg) {
         QMessageBox::critical(nullptr, "致命错误",
                               QString("%2\r\n%1\r\n请解决问题后重新启动程序\r\n"
-                                      "问题反馈：techieliang@qq.com").
-                              arg(msg).arg(current_date));
+                                      "问题反馈：techieliang@qq.com")
+                              .arg(msg)
+                              .arg(current_date));
         exit(0);
     }
 }
@@ -54,6 +55,5 @@ int main(int argc, char *argv[]) {
 #endif
     MainWindow w;
     w.show();
-
     return a.exec();
 }

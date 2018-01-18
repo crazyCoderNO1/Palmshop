@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network
+QT       += core gui network sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -26,12 +26,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         main_window.cpp \
-    system_config_manager.cpp
+    system_config_manager.cpp \
+    data_base/restaurant_db_initialization.cpp \
+    user_interface/system_config_setting_dialog.cpp
 
 HEADERS += \
         main_window.h \
     system_config_manager.h \
-    predef.h
+    predef.h \
+    data_base/db_initialization_interface.h \
+    data_base/restaurant_db_initialization.h \
+    user_interface/system_config_setting_dialog.h
 
 FORMS += \
-        main_window.ui
+        main_window.ui \
+    user_interface/system_config_setting_dialog.ui

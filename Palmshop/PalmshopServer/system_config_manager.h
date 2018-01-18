@@ -14,26 +14,31 @@
 class SystemConfigManager : public QObject {
     Q_OBJECT
   public:
+    enum ConfigError {
+        kConfigNoError,///无错误
+        kConfigFileCreateError,///配置文件创建失败
+        kConfigReadNotAllError,///配置文件读取-配置内容不全错误
+        kConfigUnInit,///配置文件未初始化
+    };
+    Q_ENUM(ConfigError)
     /**
      * @brief 系统配置枚举
      */
     enum SystemConfigType {
         //系统全局配置
-        kConfigShopType = 0,///商店类型-饭店、小商品
-        kConfigAdministratorAccount,///店铺管理员账号,若连锁请使用服务端登陆账号
-        kConfigAdministratorPassword,///店铺管理员密码
+        kShopType = 0,///商店类型-饭店、小商品
+        kAdministratorAccount,///店铺管理员账号,若连锁请使用服务端登陆账号
+        kAdministratorPassword,///店铺管理员密码
         //连锁店铺配置
-        kConfigMultipleShop = 100,///连锁店铺
-        kConfigHeadquartersHost,///总部服务器主机名或IP地址
-        kConfigHeadquartersPort,///总部服务器端口号
-        kConfigShopName,///当前店铺的名字或唯一id
-        kConfigShopId,///当前店铺的唯一id,提供名称和id分离的识别方式，以id为识别标注
+        kIsMultipleShop = 100,///是否为连锁店铺
+        kHeadquartersHost,///总部服务器主机名或IP地址
+        kHeadquartersPort,///总部服务器端口号
         //数据库
-        kConfigSqlUserName = 200, ///MySQL用户名
-        kConfigSqlUserPassword,   ///MySQL密码
-        kConfigSqlHost,           ///MySQL数据库主机名或IP地址
-        kConfigSqlPort,           ///MySQL服务器的端口号
-        kConfigSqlDbName,         ///MySQL数据库名称
+        kSqlUserName = 200, ///MySQL登陆用户名
+        kSqlUserPassword,   ///MySQL登陆密码
+        kSqlHost,           ///MySQL数据库主机名或IP地址
+        kSqlPort,           ///MySQL服务器的端口号
+        kSqlDbName, ///MySQL数据库名称,要求此库存在且具有完全权限
     };
     Q_ENUM(SystemConfigType)
     /**
@@ -43,6 +48,7 @@ class SystemConfigManager : public QObject {
         kShopTypeRestaurant,///饭店
         kShopTypeRetailStore,///零售店
     };
+    Q_ENUM(ShopType)
     /**
      * @brief 单例模式，获取实例化对象
      * @param 无
@@ -60,13 +66,23 @@ class SystemConfigManager : public QObject {
      * @param value 值
      * @param type 值类型
      */
-    void SetConfig(QVariant value, SystemConfigType type);
+    void SetConfig(QString value, SystemConfigType type);
     /**
      * @brief 获取配置值
      * @param type 值类型
      * @return 值
      */
-    QVariant GetConfig(SystemConfigType type);
+    QString GetConfig(SystemConfigType type);
+    /**
+     * @brief 系统配置管理器状态判断
+     * @return 状态
+     */
+    ConfigError is_good();
+    /**
+     * @brief 自检并修复
+     * @return 修复后状态
+     */
+    ConfigError CheckAndRepair();
   private:
     /**
      * @brief 构造函数

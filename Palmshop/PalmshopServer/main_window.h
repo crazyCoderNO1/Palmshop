@@ -16,7 +16,7 @@ class MainWindow;
  */
 class MainWindow : public QMainWindow {
     Q_OBJECT
-public:
+  public:
     /**
      * @brief 构造函数
      * @param parent
@@ -26,7 +26,14 @@ public:
      * @brief 析构函数
      */
     ~MainWindow();
-private:
+  protected:
+    void showEvent(QShowEvent *event) override;
+  private slots:
+    void on_pushButton_clicked();
+
+    void on_pushButton_2_clicked();
+
+  private:
     Ui::MainWindow *ui;
 };
 

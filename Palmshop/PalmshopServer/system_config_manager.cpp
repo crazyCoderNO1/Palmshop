@@ -12,85 +12,24 @@ namespace system_config_manager_private {
 //配置未读取到的默认值
 const static QString kDefaultValue = "defaultValue";
 //互斥量
-static QMutex mutex_;
+static QMutex kGetInstanceMutex_;
 //枚举-字符串映射
-static QMetaEnum config_enum_ =
+static QMetaEnum KConfigEnum =
     QMetaEnum::fromType<SystemConfigManager::SystemConfigType>();
-//配置枚举-值映射
-static QMap<SystemConfigManager::SystemConfigType, QVariant> config_map_;
-/**
- * @brief 读取配置文件
- */
-void ReadConfigFile (QSettings *configs) {
-    for(int i = 0, num = config_enum_.keyCount(); i < num; ++i) {
-        QVariant config = configs->value(config_enum_.key(i), kDefaultValue);
-        if(config.toString() == "defaultValue")
-            Q_ASSERT(QString("config read error").isEmpty());
-        config_map_.insert(static_cast<SystemConfigManager::SystemConfigType>
-                           (config_enum_.value(i)), config);
-    }
-}
-/**
- * @brief 创建默认配置文件
- */
-void CreatDefaultConfigFile(QSettings *configs) {
-    for(int i = 0, num = config_enum_.keyCount(); i < num; ++i) {
-        switch (config_enum_.value(i)) {
-        case SystemConfigManager::kConfigShopType:
-            configs->setValue(config_enum_.key(i),
-                              SystemConfigManager::kShopTypeRestaurant);
-            break;
-        case SystemConfigManager::kConfigAdministratorAccount:
-            configs->setValue(config_enum_.key(i), "");
-            break;
-        case SystemConfigManager::kConfigAdministratorPassword:
-            configs->setValue(config_enum_.key(i), "");
-            break;
-        case SystemConfigManager::kConfigMultipleShop:
-            configs->setValue(config_enum_.key(i), false);
-            break;
-        case SystemConfigManager::kConfigHeadquartersHost:
-            configs->setValue(config_enum_.key(i), "");
-            break;
-        case SystemConfigManager::kConfigHeadquartersPort:
-            configs->setValue(config_enum_.key(i), "");
-            break;
-        case SystemConfigManager::kConfigShopName:
-            configs->setValue(config_enum_.key(i), "");
-            break;
-        case SystemConfigManager::kConfigShopId:
-            configs->setValue(config_enum_.key(i), "");
-            break;
-        case SystemConfigManager::kConfigSqlUserName:
-            configs->setValue(config_enum_.key(i), "");
-            break;
-        case SystemConfigManager::kConfigSqlUserPassword:
-            configs->setValue(config_enum_.key(i), "");
-            break;
-        case SystemConfigManager::kConfigSqlHost:
-            configs->setValue(config_enum_.key(i), "");
-            break;
-        case SystemConfigManager::kConfigSqlPort:
-            configs->setValue(config_enum_.key(i), "");
-            break;
-        case SystemConfigManager::kConfigSqlDbName:
-            configs->setValue(config_enum_.key(i), "");
-            break;
-        default: {
-            qDebug(config_enum_.key(i));
-            Q_ASSERT(QString("CreatDefaultConfigFile-cann't "
-                             "creat all config").isEmpty());
-            break;
-        }
-        }
-    }
-}
+static SystemConfigManager::ConfigError kManagerState;
+static QSettings kConfigs(QSettings::IniFormat,
+                          QSettings::SystemScope,
+                          kProgramDeveloperName,
+                          kProgramName);//配置管理对象
 }//namespace system_config_manager_private
+//私有命名空间别名
+namespace private_ = system_config_manager_private;
+//类静态成员初始化
 SystemConfigManager *SystemConfigManager::instance_ = nullptr;
 //单例模式，获取实例化对象
 SystemConfigManager *SystemConfigManager::GetInstance() {
     if (instance_ == nullptr) {
-        QMutexLocker lock(&system_config_manager_private::mutex_);
+        QMutexLocker lock(&private_::kGetInstanceMutex_);
         if (instance_ == nullptr) {
             instance_ = new SystemConfigManager();
         }
@@ -106,30 +45,76 @@ void SystemConfigManager::DestoryInstance() {
 }
 //设置配置值
 void SystemConfigManager::SetConfig
-(QVariant value, SystemConfigManager::SystemConfigType type) {
-    system_config_manager_private::config_map_.insert(type, value);
+(QString value, SystemConfigManager::SystemConfigType type) {
+    //判断是否具有此类型，防止使用错误导致配置内容膨胀
+    if(private_::KConfigEnum.valueToKey(type) == 0) {
+        return;
+    }
+    private_::kConfigs.setValue(private_::KConfigEnum.valueToKey(type),
+                                value);
 }
 //获取配置值
-QVariant SystemConfigManager::GetConfig(SystemConfigManager::
-                                        SystemConfigType type) {
-    return system_config_manager_private::config_map_.value(type,
-            system_config_manager_private::kDefaultValue);
+QString SystemConfigManager::GetConfig(SystemConfigManager::
+                                       SystemConfigType type) {
+    QString type_text = private_::KConfigEnum.valueToKey(type);
+    QString config = private_::kConfigs.value(type_text,
+                     private_::kDefaultValue).toString();
+    //如果读取到的为设定的默认值，则表明文件中并未记录此配置
+    //状态转为配置文件记录不全
+    if(config == private_::kDefaultValue) {
+        private_::kManagerState = kConfigReadNotAllError;
+    }
+    return config;
+}
+
+SystemConfigManager::ConfigError SystemConfigManager::is_good() {
+    return private_::kManagerState;
+}
+//自检并修复
+SystemConfigManager::ConfigError SystemConfigManager::CheckAndRepair() {
+    QFile file(private_::kConfigs.fileName());
+    if(!file.exists()) {//文件存在-读取
+        private_::kManagerState = kConfigFileCreateError;
+        return private_::kManagerState;
+    }
+    bool is_all_config_right = true;
+    int enum_num = private_::KConfigEnum.keyCount();
+    for(int i = 0; i < enum_num; ++i) {
+        if(private_::kDefaultValue ==
+                GetConfig(static_cast<SystemConfigManager::SystemConfigType>
+                          (private_::KConfigEnum.value(i)))) {
+            is_all_config_right = false;
+            break;
+        }
+    }
+    if(!is_all_config_right) {
+        private_::kManagerState = kConfigReadNotAllError;
+        return private_::kManagerState;
+    }
+    private_::kManagerState = kConfigNoError;
+    return private_::kManagerState;
 }
 //构造函数
 SystemConfigManager::SystemConfigManager() {
     //判断配置文件是否存在
-    QSettings configs(QSettings::IniFormat,
-                      QSettings::SystemScope,
-                      kProgramDeveloperName,
-                      kProgramName);
-    QFile file(configs.fileName());
-    if(file.exists()) {//文件存在-读取
-        system_config_manager_private::ReadConfigFile(&configs);
-    } else { //文件不存在-以默认配置创建后读取
-        system_config_manager_private::CreatDefaultConfigFile(&configs);
-        if(file.exists())
-            system_config_manager_private::ReadConfigFile(&configs);
-        else
+    QFile file(private_::kConfigs.fileName());
+    if(file.exists()) {//文件存在
+        private_::kManagerState = CheckAndRepair();
+    } else { //文件不存在
+        //新建配置-均赋值为默认值，等修改
+        for(int i = 0, num = private_::KConfigEnum.keyCount();
+                i < num;
+                ++i) {
+            private_::kConfigs.setValue(private_::KConfigEnum.key(i),
+                                        private_::kDefaultValue);
+        }
+        if(file.exists()) {
+            //新建了配置需要初始化
+            private_::kManagerState = kConfigUnInit;
+        } else {
+            //新建失败，错误
+            private_::kManagerState = kConfigFileCreateError;
             qFatal("系统配置文件读取失败且重新创建默认配置文件失败");
+        }
     }
 }
