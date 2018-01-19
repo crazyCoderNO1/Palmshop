@@ -1,19 +1,32 @@
-﻿/**
- * @file
- * @brief 本文件包含全局系统配置类声明。
- * @version 1.0.0.0
- * @date 2018.01.16
- * @author 周亮
- */
+﻿/* Copyright 2018 TechieLiang. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
 #ifndef SYSTEM_CONFIG_MANAGER_H
 #define SYSTEM_CONFIG_MANAGER_H
+
 #include <QObject>
+
 /**
  * @brief The SystemConfig class 单例
  */
 class SystemConfigManager : public QObject {
     Q_OBJECT
   public:
+    /**
+     * @brief 配置错误类型
+     */
     enum ConfigError {
         kConfigNoError,///无错误
         kConfigFileCreateError,///配置文件创建失败
@@ -103,4 +116,5 @@ class SystemConfigManager : public QObject {
     static SystemConfigManager singleton_del_;///程序结束时销毁
     static SystemConfigManager *instance_;    //单例对象指针
 };
+
 #endif // SYSTEM_CONFIG_MANAGER_H

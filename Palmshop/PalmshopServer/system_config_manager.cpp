@@ -1,18 +1,35 @@
-﻿#include "system_config_manager.h"
-#include <QMutex>
-#include <QMutexLocker>
-#include <QVariant>
+﻿/* Copyright 2018 TechieLiang. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "system_config_manager.h"
+
 #include <QMetaEnum>
+#include <QMutexLocker>
 #include <QSettings>
 #include <QFile>
+#include <QVariant>
 #include <QMap>
+
 #include "predef.h"
+
 //私有静态成员
 namespace system_config_manager_private {
 //配置未读取到的默认值
 const static QString kDefaultValue = "defaultValue";
 //互斥量
-static QMutex kGetInstanceMutex_;
+static QMutex kGetInstanceMutex;
 //枚举-字符串映射
 static QMetaEnum KConfigEnum =
     QMetaEnum::fromType<SystemConfigManager::SystemConfigType>();
@@ -22,20 +39,23 @@ static QSettings kConfigs(QSettings::IniFormat,
                           kProgramDeveloperName,
                           kProgramName);//配置管理对象
 }//namespace system_config_manager_private
-//私有命名空间别名
-namespace private_ = system_config_manager_private;
+
+namespace private_ = system_config_manager_private;//私有命名空间别名
+
 //类静态成员初始化
 SystemConfigManager *SystemConfigManager::instance_ = nullptr;
+
 //单例模式，获取实例化对象
 SystemConfigManager *SystemConfigManager::GetInstance() {
     if (instance_ == nullptr) {
-        QMutexLocker lock(&private_::kGetInstanceMutex_);
+        QMutexLocker lock(&private_::kGetInstanceMutex);
         if (instance_ == nullptr) {
             instance_ = new SystemConfigManager();
         }
     }
     return instance_;
 }
+
 //单例模式，主动销毁实例化对象
 void SystemConfigManager::DestoryInstance() {
     if (instance_ != nullptr) {
@@ -43,6 +63,7 @@ void SystemConfigManager::DestoryInstance() {
         instance_ = nullptr;
     }
 }
+
 //设置配置值
 void SystemConfigManager::SetConfig
 (QString value, SystemConfigManager::SystemConfigType type) {
@@ -53,6 +74,7 @@ void SystemConfigManager::SetConfig
     private_::kConfigs.setValue(private_::KConfigEnum.valueToKey(type),
                                 value);
 }
+
 //获取配置值
 QString SystemConfigManager::GetConfig(SystemConfigManager::
                                        SystemConfigType type) {
@@ -70,14 +92,19 @@ QString SystemConfigManager::GetConfig(SystemConfigManager::
 SystemConfigManager::ConfigError SystemConfigManager::is_good() {
     return private_::kManagerState;
 }
+
 //自检并修复
 SystemConfigManager::ConfigError SystemConfigManager::CheckAndRepair() {
+    //检测文件是否存在
     QFile file(private_::kConfigs.fileName());
-    if(!file.exists()) {//文件存在-读取
+    if(!file.exists()) {
         private_::kManagerState = kConfigFileCreateError;
         return private_::kManagerState;
     }
-    bool is_all_config_right = true;
+
+    //判断每个配置量是否已配置
+    //已配置则不为默认值kDefaultValue
+    bool is_all_config_right = true;//配置量正确标记位
     int enum_num = private_::KConfigEnum.keyCount();
     for(int i = 0; i < enum_num; ++i) {
         if(private_::kDefaultValue ==
@@ -87,13 +114,18 @@ SystemConfigManager::ConfigError SystemConfigManager::CheckAndRepair() {
             break;
         }
     }
+
+    //判断配置量是否正确标记位
     if(!is_all_config_right) {
         private_::kManagerState = kConfigReadNotAllError;
         return private_::kManagerState;
     }
+
+    //上述均无错误则配置无误
     private_::kManagerState = kConfigNoError;
     return private_::kManagerState;
 }
+
 //构造函数
 SystemConfigManager::SystemConfigManager() {
     //判断配置文件是否存在
@@ -108,11 +140,13 @@ SystemConfigManager::SystemConfigManager() {
             private_::kConfigs.setValue(private_::KConfigEnum.key(i),
                                         private_::kDefaultValue);
         }
+
+        //再次判断文件是否存在
         if(file.exists()) {
-            //新建了配置需要初始化
+            //存在，系统状态为初始创建，需要初始化
             private_::kManagerState = kConfigUnInit;
         } else {
-            //新建失败，错误
+            //新建失败，日志报告致命错误
             private_::kManagerState = kConfigFileCreateError;
             qFatal("系统配置文件读取失败且重新创建默认配置文件失败");
         }

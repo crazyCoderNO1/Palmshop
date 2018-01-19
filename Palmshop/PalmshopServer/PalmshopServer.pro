@@ -28,7 +28,8 @@ SOURCES += \
         main_window.cpp \
     system_config_manager.cpp \
     data_base/restaurant_db_initialization.cpp \
-    user_interface/system_config_setting_dialog.cpp
+    user_interface/system_config_setting_dialog.cpp \
+    data_base/restaurant_sql_command.cpp
 
 HEADERS += \
         main_window.h \
@@ -36,7 +37,8 @@ HEADERS += \
     predef.h \
     data_base/db_initialization_interface.h \
     data_base/restaurant_db_initialization.h \
-    user_interface/system_config_setting_dialog.h
+    user_interface/system_config_setting_dialog.h \
+    data_base/restaurant_sql_command.h
 
 FORMS += \
         main_window.ui \

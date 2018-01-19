@@ -12,6 +12,7 @@
 # temporary file
 log.txt
 # architecture file
+*.ldb
 Plamshop.EAP
 # Qt-es
 

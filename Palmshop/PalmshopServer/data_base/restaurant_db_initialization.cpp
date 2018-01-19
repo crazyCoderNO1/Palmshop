@@ -1,46 +1,53 @@
-﻿#include "restaurant_db_initialization.h"
+﻿/* Copyright 2018 TechieLiang. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "restaurant_db_initialization.h"
+
 #include <QtSql>
 #include <QString>
 #include <QVariant>
-//#include "D:/Qt/Qt5.10.0/5.10.0/Src/sql/drivers/psql/qsql_mysql.cpp"
+/* Copyright 2018 TechieLiang. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
 #include "predef.h"
+
 #include "system_config_manager.h"
+#include "restaurant_sql_command.h"
+
 typedef DbInitializationInterface::InitReturnType rtype;
-namespace restaurant_db_initialization_private {
-static QString kDeleteAll = "DROP TABLE IF EXISTS `commodity_package_detail_table`;"
-                            "DROP TABLE IF EXISTS `commodity_package_table`;"
-                            "DROP TABLE IF EXISTS `commodity_table`;"
-                            "DROP TABLE IF EXISTS `commodity_unit_table`;"
-                            "DROP TABLE IF EXISTS `employees_account_table`;
-                            "DROP TABLE IF EXISTS `orders_detail_table`;
-                            "DROP TABLE IF EXISTS `orders_settlement_table`;
-                            "DROP TABLE IF EXISTS `orders_table`;
-                            "DROP TABLE IF EXISTS `orders_YEAR_old_detail_table`;
-                            "DROP TABLE IF EXISTS `orders_YEAR_old_settlement_table`;
-                            "DROP TABLE IF EXISTS `payment_type_table`;
-                            "DROP TABLE IF EXISTS `system_config_table`;
-                            "DROP TABLE IF EXISTS `vip_customer_table`;
-                            "DROP TABLE IF EXISTS `vip_recharge_record_table`;";
-static QString kCreatecommodity_package_detail_table =
-    "CREATE TABLE `commodity_package_detail_table`"
-    "("
-    "`id` INT not null primary key auto_increment,"
-    "`commodity_id` CHAR(20) not null,"
-    "`commodity_name` VARCHAR(50) not null,"
-    "`commodity_unit` INT not null,"
-    "`commodity_price` INT not null,"
-    "`commodity_number` INT not null);";
-bool RunSql(QString sql_text) {
-    QSqlQuery sql_query(sql_text, QSqlDatabase::database(kSqlConnectionName));
-    if(!sql_query.exec()) {
-        return false;
-    }
-    return true;
-}
-}//namespace restaurant_db_initialization_private
+
 DbInitializationInterface::InitReturnType RestaurantDbInitialization::Init() {
-    QSqlDatabase db = QSqlDatabase::addDatabase(kSqlDbType, kSqlConnectionName);
+    QSqlDatabase db;
+    if(QSqlDatabase::contains(kSqlConnectionName))
+        db = QSqlDatabase::database(kSqlConnectionName);
+    else
+        db = QSqlDatabase::addDatabase(kSqlDbType, kSqlConnectionName);
     auto configs = SystemConfigManager::GetInstance();
+
     //系统配置有错误，此时初始化直接返回未知错误
     if(SystemConfigManager::kConfigNoError != configs->is_good()) {
         qWarning("RestaurantDbInitialization::Init-"
@@ -53,6 +60,7 @@ DbInitializationInterface::InitReturnType RestaurantDbInitialization::Init() {
     db.setPort(configs->GetConfig(SystemConfigManager::kSqlPort).toInt());
     db.setUserName(configs->GetConfig(SystemConfigManager::kSqlUserName));
     db.setPassword(configs->GetConfig(SystemConfigManager::kSqlUserPassword));
+
     //尝试连接数据库
     if(!db.open()) {
         auto error = db.lastError();
@@ -67,6 +75,15 @@ DbInitializationInterface::InitReturnType RestaurantDbInitialization::Init() {
             return DbInitializationInterface::kUnknowError;
         }
     }
-//数据库连接成功
+
+    //数据库连接成功-清除相关表
+    if(!restaurant::DeleteTable::DeleteAll()) {
+        return DbInitializationInterface::kDbCannotDeleteSameTable;
+    }
+
+    //建立表
+    if(!restaurant::CreateTable::CreatAll()) {
+        return DbInitializationInterface::kDbCannotCreatTable;
+    }
     return DbInitializationInterface::kOk;
 }
