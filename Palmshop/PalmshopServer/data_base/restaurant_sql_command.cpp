@@ -16,6 +16,9 @@ limitations under the License.
 #include "restaurant_sql_command.h"
 
 #include <QtSql>
+#include <QCryptographicHash>
+
+#include "system_config_manager.h"
 
 #include "predef.h"
 
@@ -50,7 +53,7 @@ const static QString EmployeeAccount =
     "CREATE TABLE if not exists `EmployeeAccount`("
     "`id` INT NOT NULL primary key AUTO_INCREMENT ,"
     "`account` CHAR(20) NOT NULL,"
-    "`password` CHAR(20) NOT NULL,"
+    "`password` CHAR(41) NOT NULL,"
     "`name` CHAR(10) NOT NULL,"
     "`telnum` CHAR(20) NOT NULL,"
     "`email` CHAR(30) NOT NULL,"
@@ -115,6 +118,7 @@ const static QString VipRechargeOrder =
     "`record_date` DATE,"
     "`record_time` TIME(0));";
 }//namespace create_table
+
 namespace delete_table {
 const static QString Commodity =
     "DROP TABLE IF EXISTS `Commodity`;";
@@ -152,59 +156,100 @@ QSqlError::ErrorType RunSql (QString sql_text) {
 }
 }//namespace restaurant_private
 
-bool CreateTable::CreatAll() {
+bool RestaurantSqlCommand::ConnectDbJudgement() {
+    QSqlDatabase db;
+    if(QSqlDatabase::contains(kSqlConnectionName))
+        db = QSqlDatabase::database(kSqlConnectionName);
+    else
+        db = QSqlDatabase::addDatabase(kSqlDbType, kSqlConnectionName);
+    auto configs = SystemConfigManager::GetInstance();
+
+    //系统配置有错误，此时初始化直接返回未知错误
+    if(SystemConfigManager::kConfigNoError != configs->is_good()) {
+        qWarning("RestaurantDbInitialization::Init-"
+                 "SystemConfigManager is kConfigNoError");
+        return false;
+    }
+
+    //从系统配置获取数据库相关配置内容并赋值
+    db.setDatabaseName(configs->GetConfig(SystemConfigManager::kSqlDbName));
+    db.setHostName(configs->GetConfig(SystemConfigManager::kSqlHost));
+    db.setPort(configs->GetConfig(SystemConfigManager::kSqlPort).toInt());
+    db.setUserName(configs->GetConfig(SystemConfigManager::kSqlUserName));
+    db.setPassword(configs->GetConfig(SystemConfigManager::kSqlUserPassword));
+    //尝试连接数据库
+    if(db.open()) {
+        return true;
+    }
+    //连接失败
+    auto error = db.lastError();
+    QString message = QString("RestaurantDbInitialization::"
+                              "Init-db open:%1")
+                      .arg(error.text());
+    qWarning(message.toStdString().c_str());
+    return false;
+}
+
+bool RestaurantSqlCommand::CreatAllTable() {
     using namespace restaurant_private::create_table;
-    if(restaurant_private::RunSql(Commodity))
-        return false;
-    if(restaurant_private::RunSql(CommPackage))
-        return false;
-    if(restaurant_private::RunSql(CommUnit))
-        return false;
-    if(restaurant_private::RunSql(EmployeeAccount))
-        return false;
-    if(restaurant_private::RunSql(Order))
-        return false;
-    if(restaurant_private::RunSql(OrderDetail))
-        return false;
-    if(restaurant_private::RunSql(OrderSettlement))
-        return false;
-    if(restaurant_private::RunSql(PaymentType))
-        return false;
-    if(restaurant_private::RunSql(SystemConfig))
-        return false;
-    if(restaurant_private::RunSql(VipCustomer))
-        return false;
-    if(restaurant_private::RunSql(VipRechargeOrder))
-        return false;
+    if(restaurant_private::RunSql(Commodity)) return false;
+    if(restaurant_private::RunSql(CommPackage)) return false;
+    if(restaurant_private::RunSql(CommUnit)) return false;
+    if(restaurant_private::RunSql(EmployeeAccount)) return false;
+    if(restaurant_private::RunSql(Order)) return false;
+    if(restaurant_private::RunSql(OrderDetail)) return false;
+    if(restaurant_private::RunSql(OrderSettlement)) return false;
+    if(restaurant_private::RunSql(PaymentType)) return false;
+    if(restaurant_private::RunSql(SystemConfig)) return false;
+    if(restaurant_private::RunSql(VipCustomer)) return false;
+    if(restaurant_private::RunSql(VipRechargeOrder)) return false;
     return true;
 }
 
-bool DeleteTable::DeleteAll() {
+bool RestaurantSqlCommand::DeleteAllTable() {
     using namespace restaurant_private::delete_table;
-    if(restaurant_private::RunSql(Commodity))
-        return false;
-    if(restaurant_private::RunSql(CommPackage))
-        return false;
-    if(restaurant_private::RunSql(CommUnit))
-        return false;
-    if(restaurant_private::RunSql(EmployeeAccount))
-        return false;
-    if(restaurant_private::RunSql(Order))
-        return false;
-    if(restaurant_private::RunSql(OrderDetail))
-        return false;
-    if(restaurant_private::RunSql(OrderSettlement))
-        return false;
-    if(restaurant_private::RunSql(PaymentType))
-        return false;
-    if(restaurant_private::RunSql(SystemConfig))
-        return false;
-    if(restaurant_private::RunSql(VipCustomer))
-        return false;
-    if(restaurant_private::RunSql(VipRechargeOrder))
-        return false;
+    if(restaurant_private::RunSql(Commodity)) return false;
+    if(restaurant_private::RunSql(CommPackage)) return false;
+    if(restaurant_private::RunSql(CommUnit)) return false;
+    if(restaurant_private::RunSql(EmployeeAccount)) return false;
+    if(restaurant_private::RunSql(Order)) return false;
+    if(restaurant_private::RunSql(OrderDetail)) return false;
+    if(restaurant_private::RunSql(OrderSettlement)) return false;
+    if(restaurant_private::RunSql(PaymentType)) return false;
+    if(restaurant_private::RunSql(SystemConfig)) return false;
+    if(restaurant_private::RunSql(VipCustomer)) return false;
+    if(restaurant_private::RunSql(VipRechargeOrder)) return false;
     return true;
 }
+
+bool RestaurantSqlCommand::LoginJudgement(const QString &account,
+        const QString &password) {
+    QString pw = QCryptographicHash::hash(password.toLatin1(),
+                                          QCryptographicHash::Sha3_512).toHex();
+    pw = QCryptographicHash::hash(pw.toLatin1(),
+                                  QCryptographicHash::Md5).toHex();
+    QString sql_text = "SELECT id from employeeaccount "
+                       "WHERE '%1' = employeeaccount.account and "
+                       "PASSWORD('%2') = employeeaccount.password;";
+    //FIXME 内容替换，不知道为什么不能用bindValue，等待解决
+    sql_text = sql_text.arg(account).arg(pw);
+    QSqlQuery sql_query(sql_text, QSqlDatabase::database(kSqlConnectionName));
+    if(!sql_query.exec()) {
+        QSqlError error = sql_query.lastError();
+        QString warning_text = error.text() + " " + sql_text;
+        qWarning(warning_text.toStdString().c_str());
+        return false;
+    }
+    QList<int> users_id;
+    while(sql_query.next()) {
+        users_id.append(sql_query.value(0).toInt());
+    }
+    if(users_id.size() == 1) {
+        return true;
+    }
+    return false;
+}
+
 
 
 

@@ -53,16 +53,16 @@ kTableName{{"SystemConfig"},
     {"OrderSettlement"}, {"PaymentType"},
     {"VipCustomer"}, {"VipRechargeOrder"}};
 
-//创建表sql
-class CreateTable {
+class RestaurantSqlCommand {
   public:
-    static bool CreatAll();
-};
-
-//删除表sql
-class DeleteTable {
-  public:
-    static bool DeleteAll();
+    //判断是否连接了数据库
+    static bool ConnectDbJudgement();
+    //创建所有表
+    static bool CreatAllTable();
+    //删除所有表
+    static bool DeleteAllTable();
+    //判断登陆信息 传入用户填写的原始的用户密码
+    static bool LoginJudgement(const QString &account, const QString &password);
 };
 }//namespace restaurant
 

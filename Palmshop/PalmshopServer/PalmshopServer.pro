@@ -29,7 +29,9 @@ SOURCES += \
     system_config_manager.cpp \
     data_base/restaurant_db_initialization.cpp \
     user_interface/system_config_setting_dialog.cpp \
-    data_base/restaurant_sql_command.cpp
+    data_base/restaurant_sql_command.cpp \
+    user_interface/login_dialog.cpp \
+    user_interface/initialization_dialog.cpp
 
 HEADERS += \
         main_window.h \
@@ -38,8 +40,12 @@ HEADERS += \
     data_base/db_initialization_interface.h \
     data_base/restaurant_db_initialization.h \
     user_interface/system_config_setting_dialog.h \
-    data_base/restaurant_sql_command.h
+    data_base/restaurant_sql_command.h \
+    user_interface/login_dialog.h \
+    user_interface/initialization_dialog.h
 
 FORMS += \
         main_window.ui \
-    user_interface/system_config_setting_dialog.ui
+    user_interface/system_config_setting_dialog.ui \
+    user_interface/login_dialog.ui \
+    user_interface/initialization_dialog.ui

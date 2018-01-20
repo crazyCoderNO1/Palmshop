@@ -19,6 +19,7 @@ limitations under the License.
 #include <QMessageBox>
 
 #include "main_window.h"
+#include "user_interface/login_dialog.h"
 
 /**
  * @brief CustomOutputMessage
@@ -73,5 +74,6 @@ int main(int argc, char *argv[]) {
     //启动主窗口
     MainWindow w;
     w.show();
+
     return a.exec();
 }

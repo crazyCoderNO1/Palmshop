@@ -101,6 +101,7 @@ void SystemConfigSettingDialog::on_pushButton_yes_clicked() {
         configs->SetConfig(QString(),
                            SystemConfigManager::kHeadquartersPort);
     }
+    close();
 }
 
 void SystemConfigSettingDialog::on_pushButton_no_clicked() {

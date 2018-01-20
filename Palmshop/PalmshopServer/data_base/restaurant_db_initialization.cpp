@@ -77,12 +77,12 @@ DbInitializationInterface::InitReturnType RestaurantDbInitialization::Init() {
     }
 
     //数据库连接成功-清除相关表
-    if(!restaurant::DeleteTable::DeleteAll()) {
+    if(!restaurant::RestaurantSqlCommand::DeleteAllTable()) {
         return DbInitializationInterface::kDbCannotDeleteSameTable;
     }
 
     //建立表
-    if(!restaurant::CreateTable::CreatAll()) {
+    if(!restaurant::RestaurantSqlCommand::CreatAllTable()) {
         return DbInitializationInterface::kDbCannotCreatTable;
     }
     return DbInitializationInterface::kOk;

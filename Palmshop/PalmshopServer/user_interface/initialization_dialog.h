@@ -13,47 +13,29 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef MAIN_WINDOW_H
-#define MAIN_WINDOW_H
+#ifndef INITIALIZATION_DIALOG_H
+#define INITIALIZATION_DIALOG_H
 
-#include <QMainWindow>
-#include <QLabel>
+#include <QDialog>
 
 namespace Ui {
-class MainWindow;
+class InitializationDialog;
 }
 
 /**
- * @brief The MainWindow class
+ * @brief 初始化对话框
+ * 检查程序系统配置、数据库连接、显示程序启动进度条等
+ * 若配置不完整或数据库连接不成功，跳转至配置页面
  */
-class MainWindow : public QMainWindow {
+class InitializationDialog : public QDialog {
     Q_OBJECT
+
   public:
-    /**
-     * @brief 构造函数
-     * @param parent
-     */
-    explicit MainWindow(QWidget *parent = 0);
-    /**
-     * @brief 析构函数
-     */
-    ~MainWindow();
-  public slots:
-    /**
-     * @brief 设置系统状态
-     * @param text 状态值
-     * @param is_good 状态好坏
-     */
-    void SetState(const QString &text, bool is_good);
-  protected:
-    void showEvent(QShowEvent *event) override;
-  private slots:
-    void on_pushButton_clicked();
+    explicit InitializationDialog(QWidget *parent = 0);
+    ~InitializationDialog();
 
   private:
-    Ui::MainWindow *ui;
-    QLabel *statusbar_state_label_;
-
+    Ui::InitializationDialog *ui;
 };
 
-#endif // MAIN_WINDOW_H
+#endif // INITIALIZATION_DIALOG_H

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>544</width>
-    <height>433</height>
+    <width>821</width>
+    <height>493</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,27 +17,14 @@
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>200</x>
+      <x>220</x>
       <y>190</y>
       <width>93</width>
       <height>28</height>
      </rect>
     </property>
     <property name="text">
-     <string>PushButton</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_2">
-    <property name="geometry">
-     <rect>
-      <x>340</x>
-      <y>190</y>
-      <width>131</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>数据库初始化测试</string>
+     <string>测试登陆</string>
     </property>
    </widget>
   </widget>
@@ -46,20 +33,56 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>544</width>
+     <width>821</width>
      <height>26</height>
     </rect>
    </property>
-  </widget>
-  <widget class="QToolBar" name="mainToolBar">
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
+   <widget class="QMenu" name="menuPalmshop">
+    <property name="title">
+     <string>&amp;Palmshop</string>
+    </property>
+    <addaction name="action_login"/>
+    <addaction name="action_logout"/>
+    <addaction name="separator"/>
+    <addaction name="action_config"/>
+    <addaction name="separator"/>
+    <addaction name="action_exit"/>
+   </widget>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>关于</string>
+    </property>
+    <addaction name="action_help"/>
+   </widget>
+   <addaction name="menuPalmshop"/>
+   <addaction name="menu"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <action name="action_config">
+   <property name="text">
+    <string>系统配置</string>
+   </property>
+  </action>
+  <action name="action_login">
+   <property name="text">
+    <string>登入</string>
+   </property>
+  </action>
+  <action name="action_logout">
+   <property name="text">
+    <string>注销</string>
+   </property>
+  </action>
+  <action name="action_exit">
+   <property name="text">
+    <string>退出</string>
+   </property>
+  </action>
+  <action name="action_help">
+   <property name="text">
+    <string>帮助</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>

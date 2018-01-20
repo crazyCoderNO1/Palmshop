@@ -13,47 +13,30 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef MAIN_WINDOW_H
-#define MAIN_WINDOW_H
+#ifndef LOGIN_DIALOG_H
+#define LOGIN_DIALOG_H
 
-#include <QMainWindow>
-#include <QLabel>
+#include <QDialog>
 
 namespace Ui {
-class MainWindow;
+class LoginDialog;
 }
-
 /**
- * @brief The MainWindow class
+ * @brief 登陆对话框，提供用户密码输入及验证功能
  */
-class MainWindow : public QMainWindow {
+class LoginDialog : public QDialog {
     Q_OBJECT
+
   public:
-    /**
-     * @brief 构造函数
-     * @param parent
-     */
-    explicit MainWindow(QWidget *parent = 0);
-    /**
-     * @brief 析构函数
-     */
-    ~MainWindow();
-  public slots:
-    /**
-     * @brief 设置系统状态
-     * @param text 状态值
-     * @param is_good 状态好坏
-     */
-    void SetState(const QString &text, bool is_good);
-  protected:
-    void showEvent(QShowEvent *event) override;
+    explicit LoginDialog(QWidget *parent = 0);
+    ~LoginDialog();
+
   private slots:
+    //登陆按钮点击
     void on_pushButton_clicked();
 
   private:
-    Ui::MainWindow *ui;
-    QLabel *statusbar_state_label_;
-
+    Ui::LoginDialog *ui;
 };
 
-#endif // MAIN_WINDOW_H
+#endif // LOGIN_DIALOG_H
