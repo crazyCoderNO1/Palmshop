@@ -16,22 +16,48 @@ limitations under the License.
 #include "login_dialog.h"
 #include "ui_login_dialog.h"
 
-#include "data_base/restaurant_sql_command.h"
-#include <QDebug>
+#include <QCloseEvent>
 
+#include "data_base/restaurant_sql_command.h"
 
 LoginDialog::LoginDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::LoginDialog) {
     ui->setupUi(this);
+    //隐藏标题栏右侧最小化、大小化、关闭按钮、问号按钮
+    setWindowFlags(windowFlags() & ~Qt::WindowCloseButtonHint
+                   & ~Qt::WindowContextHelpButtonHint);
+    user_id_ = -1;
 }
 
 LoginDialog::~LoginDialog() {
     delete ui;
 }
 
-void LoginDialog::on_pushButton_clicked() {
+int LoginDialog::user_id() {
+    return user_id_;
+}
+
+void LoginDialog::closeEvent(QCloseEvent *event) {
+    if(user_id_ > 0) {
+        QDialog::closeEvent(event);
+    } else {
+        event->ignore();
+    }
+}
+
+void LoginDialog::on_pushButton_login_clicked() {
     QString account = ui->lineEdit_account->text();
     QString password = ui->lineEdit_password->text();
-    qDebug() << restaurant::RestaurantSqlCommand::LoginJudgement(account, password);
+    int user_id = restaurant::RestaurantSqlCommand::
+                  LoginJudgement(account, password);
+    //登陆成功
+    if(user_id > 0) {
+        user_id_ = user_id;
+        close();
+    }
+}
+
+void LoginDialog::on_pushButton_exit_clicked() {
+    exit(0);
 }

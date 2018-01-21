@@ -222,7 +222,7 @@ bool RestaurantSqlCommand::DeleteAllTable() {
     return true;
 }
 
-bool RestaurantSqlCommand::LoginJudgement(const QString &account,
+int RestaurantSqlCommand::LoginJudgement(const QString &account,
         const QString &password) {
     QString pw = QCryptographicHash::hash(password.toLatin1(),
                                           QCryptographicHash::Sha3_512).toHex();
@@ -238,16 +238,16 @@ bool RestaurantSqlCommand::LoginJudgement(const QString &account,
         QSqlError error = sql_query.lastError();
         QString warning_text = error.text() + " " + sql_text;
         qWarning(warning_text.toStdString().c_str());
-        return false;
+        return -1;
     }
     QList<int> users_id;
     while(sql_query.next()) {
         users_id.append(sql_query.value(0).toInt());
     }
     if(users_id.size() == 1) {
-        return true;
+        return users_id.first();
     }
-    return false;
+    return -1;
 }
 
 

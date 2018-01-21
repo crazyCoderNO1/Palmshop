@@ -62,7 +62,8 @@ class RestaurantSqlCommand {
     //删除所有表
     static bool DeleteAllTable();
     //判断登陆信息 传入用户填写的原始的用户密码
-    static bool LoginJudgement(const QString &account, const QString &password);
+    //-1为登陆失败，其余为用户id
+    static int LoginJudgement(const QString &account, const QString &password);
 };
 }//namespace restaurant
 

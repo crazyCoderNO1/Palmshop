@@ -30,13 +30,19 @@ class LoginDialog : public QDialog {
   public:
     explicit LoginDialog(QWidget *parent = 0);
     ~LoginDialog();
-
+    int user_id();
+  protected:
+    //重写关闭事件，防止Ctrl+F4等途径跳过登陆页面
+    void closeEvent(QCloseEvent *event) override;
   private slots:
     //登陆按钮点击
-    void on_pushButton_clicked();
+    void on_pushButton_login_clicked();
+    //退出按钮点击
+    void on_pushButton_exit_clicked();
 
   private:
     Ui::LoginDialog *ui;
+    int user_id_;
 };
 
 #endif // LOGIN_DIALOG_H
