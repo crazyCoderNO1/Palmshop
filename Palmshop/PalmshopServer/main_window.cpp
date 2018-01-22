@@ -34,22 +34,6 @@ MainWindow::MainWindow(QWidget *parent) :
     //窗口标题
     setWindowTitle(kProgramName);
 
-    //菜单栏信号槽
-    //退出
-    connect(ui->action_exit, &QAction::triggered, []() {
-        exit(0);
-    });
-    //系统配置
-    connect(ui->action_config, &QAction::triggered, []() {
-        SystemConfigSettingDialog dialog;
-        dialog.exec();
-    });
-    //系统配置
-    connect(ui->action_config, &QAction::triggered, []() {
-        SystemConfigSettingDialog dialog;
-        dialog.exec();
-    });
-
     //状态栏设置
     //不显示其内控件的边框
     statusBar()->setStyleSheet("QStatusBar::item{border: 0px}");
@@ -60,25 +44,42 @@ MainWindow::MainWindow(QWidget *parent) :
     statusbar_state_label_  = new QLabel(this);
     statusBar()->addWidget(statusbar_state_label_);
 
-    //系统配置检查
-    if(SystemConfigManager::kConfigNoError !=
-            SystemConfigManager::GetInstance()->CheckAndRepair()) {
-        SetState("系统配置文件错误，请更改配置信息！", false);
-        qWarning("系统配置文件错误，请更改配置信息！");
+    //根据用户权限显示功能
+    if(!SystemConfigManager::GetInstance()->user_is_admin()) {
+        //非管理员用户隐藏用户管理
+        ui->menu_admin->menuAction()->setVisible(false);
     } else {
-        if(restaurant::RestaurantSqlCommand::ConnectDbJudgement()) {
-            SetState("数据库登陆成功", true);
-        } else {
-            SetState("数据库登陆失败", false);
-        }
+        //管理员用户具有用户管理、系统配置等功能
+
+        //管理员专用菜单栏信号槽
+        //系统配置按钮
+        connect(ui->action_admin_config, &QAction::triggered, []() {
+            SystemConfigSettingDialog dialog;
+            dialog.exec();
+        });
     }
+
+    //通用菜单栏信号槽
+    //退出
+    connect(ui->action_exit, &QAction::triggered, []() {
+        exit(0);
+    });
+    //注销
+    connect(ui->action_logout, &QAction::triggered, []() {
+        LoginDialog login_dialog;
+        login_dialog.exec();
+        //非正常关闭登陆对话框，直接退出程序
+        if(login_dialog.user_id() == -1) {
+            exit(0);
+        }
+    });
 }
 
 MainWindow::~MainWindow() {
     delete ui;
 }
 
-void MainWindow::SetState(const QString &text, bool is_good) {
+void MainWindow::SetState(const QString & text, bool is_good) {
     QPalette pa;
     if(is_good)
         pa.setColor(QPalette::WindowText, Qt::green);
@@ -88,11 +89,8 @@ void MainWindow::SetState(const QString &text, bool is_good) {
     statusbar_state_label_->setText(text);
 }
 
-void MainWindow::showEvent(QShowEvent *event) {
-    QMainWindow::showEvent(event);
+void MainWindow::showEvent(QShowEvent * event) {
+    Q_UNUSED(event);
 }
 
-void MainWindow::on_pushButton_clicked() {
-    LoginDialog d;
-    d.exec();
-}
+

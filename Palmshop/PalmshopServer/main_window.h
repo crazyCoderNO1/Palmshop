@@ -46,9 +46,12 @@ class MainWindow : public QMainWindow {
      */
     void SetState(const QString &text, bool is_good);
   protected:
+    /**
+     * @brief 显示事件-窗口显示时操作
+     * @param event
+     */
     void showEvent(QShowEvent *event) override;
   private slots:
-    void on_pushButton_clicked();
 
   private:
     Ui::MainWindow *ui;

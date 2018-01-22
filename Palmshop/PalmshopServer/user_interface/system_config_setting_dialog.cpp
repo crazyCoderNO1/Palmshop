@@ -58,7 +58,7 @@ SystemConfigSettingDialog::~SystemConfigSettingDialog() {
 }
 
 void SystemConfigSettingDialog::
-on_checkBox_is_have_parent_stateChanged(int arg1) {
+on_checkBox_is_have_parent_stateChanged(int) {
     if(ui->checkBox_is_have_parent->isChecked()) {
         ui->lineEdit_parent_port->setEnabled(true);
         ui->lineEdit_parent_ip->setEnabled(true);

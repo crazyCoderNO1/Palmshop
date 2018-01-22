@@ -22,6 +22,8 @@ namespace Ui {
 class InitializationDialog;
 }
 
+class QTimer;
+
 /**
  * @brief 初始化对话框
  * 检查程序系统配置、数据库连接、显示程序启动进度条等
@@ -33,9 +35,21 @@ class InitializationDialog : public QDialog {
   public:
     explicit InitializationDialog(QWidget *parent = 0);
     ~InitializationDialog();
+    bool is_closeable();
+  protected:
+    //重写关闭事件，防止Ctrl+F4等途径跳过登陆页面
+    void closeEvent(QCloseEvent *event) override;
+  private slots:
+    //初始化时钟
+    void TimerRunInit();
+    void on_pushButton_clicked();
 
   private:
+    //初始化进度刷新，状态内容及进度值
+    void ShowUpdata(QString text, int pross);
     Ui::InitializationDialog *ui;
+    bool is_closeable_;//是否可以关闭窗口
+    QTimer *timer_;//初始化过程时钟，与界面显示分离
 };
 
 #endif // INITIALIZATION_DIALOG_H

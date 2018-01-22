@@ -19,7 +19,9 @@ limitations under the License.
 #include <QMessageBox>
 
 #include "main_window.h"
+#include "user_interface/initialization_dialog.h"
 #include "user_interface/login_dialog.h"
+
 
 /**
  * @brief CustomOutputMessage
@@ -71,6 +73,20 @@ int main(int argc, char *argv[]) {
 #ifndef QT_DEBUG
     qInstallMessageHandler(CustomOutputMessage);
 #endif
+    //初始化-此窗口若初始化失败则直接退出程序不会进行后续main操作
+    InitializationDialog init_dialog;
+    init_dialog.exec();
+    if(init_dialog.is_closeable() == false) {
+        exit(0);
+    }
+
+    //登陆-登陆成功以后才会返回，不成功不会通过exec，用户可能在此步直接结束程序
+    LoginDialog login_dialog;
+    login_dialog.exec();
+    if(login_dialog.user_id() == -1) {
+        exit(0);
+    }
+
     //启动主窗口
     MainWindow w;
     w.show();

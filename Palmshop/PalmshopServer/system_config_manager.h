@@ -55,6 +55,13 @@ class SystemConfigManager : public QObject {
     };
     Q_ENUM(SystemConfigType)
     /**
+     * @brief 临时参数
+     */
+    enum TemporaryParameter {
+        kUserId,///用户id，-1为未登录
+    };
+    Q_ENUM(TemporaryParameter)
+    /**
      * @brief 商店类型枚举
      */
     enum ShopType {
@@ -96,6 +103,20 @@ class SystemConfigManager : public QObject {
      * @return 修复后状态
      */
     ConfigError CheckAndRepair();
+    /**
+     * @brief 用户id读写
+     * @param type 类型
+     * @param value 值
+     */
+    void set_user_id(int value);
+    int user_id();
+    /**
+     * @brief 用户是否为管理员判断
+     * @param type 类型
+     * @param value 值
+     */
+    void set_user_is_admin(bool value);
+    bool user_is_admin();
   private:
     /**
      * @brief 构造函数

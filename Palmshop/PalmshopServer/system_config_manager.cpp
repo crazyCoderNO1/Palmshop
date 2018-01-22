@@ -38,6 +38,8 @@ static QSettings kConfigs(QSettings::IniFormat,
                           QSettings::SystemScope,
                           kProgramDeveloperName,
                           kProgramName);//配置管理对象
+static int kUserId = -1;
+static bool kUserIsAdmin = false;
 }//namespace system_config_manager_private
 
 namespace private_ = system_config_manager_private;//私有命名空间别名
@@ -124,6 +126,22 @@ SystemConfigManager::ConfigError SystemConfigManager::CheckAndRepair() {
     //上述均无错误则配置无误
     private_::kManagerState = kConfigNoError;
     return private_::kManagerState;
+}
+
+void SystemConfigManager::set_user_id(int value) {
+    private_::kUserId = value;
+}
+
+int SystemConfigManager::user_id() {
+    return private_::kUserId;
+}
+
+void SystemConfigManager::set_user_is_admin(bool value) {
+    private_::kUserIsAdmin = value;
+}
+
+bool SystemConfigManager::user_is_admin() {
+    return private_::kUserIsAdmin;
 }
 
 //构造函数
