@@ -31,7 +31,9 @@ SOURCES += \
     user_interface/system_config_setting_dialog.cpp \
     data_base/restaurant_sql_command.cpp \
     user_interface/login_dialog.cpp \
-    user_interface/initialization_dialog.cpp
+    user_interface/initialization_dialog.cpp \
+    user_interface/restaurant_checkstand_form.cpp \
+    user_interface/restaurant/restaurant_checkstand_title_bar.cpp
 
 HEADERS += \
         main_window.h \
@@ -42,10 +44,13 @@ HEADERS += \
     user_interface/system_config_setting_dialog.h \
     data_base/restaurant_sql_command.h \
     user_interface/login_dialog.h \
-    user_interface/initialization_dialog.h
+    user_interface/initialization_dialog.h \
+    user_interface/restaurant_checkstand_form.h \
+    user_interface/restaurant/restaurant_checkstand_title_bar.h
 
 FORMS += \
         main_window.ui \
     user_interface/system_config_setting_dialog.ui \
     user_interface/login_dialog.ui \
-    user_interface/initialization_dialog.ui
+    user_interface/initialization_dialog.ui \
+    user_interface/restaurant_checkstand_form.ui

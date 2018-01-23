@@ -13,32 +13,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef SYSTEM_CONFIG_SETTING_DIALOG_H
-#define SYSTEM_CONFIG_SETTING_DIALOG_H
+#include "restaurant_checkstand_form.h"
+#include "ui_restaurant_checkstand_form.h"
 
-#include <QDialog>
-
-namespace Ui {
-class SystemConfigSettingDialog;
+RestaurantCheckstandForm::RestaurantCheckstandForm(QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::RestaurantCheckstandForm) {
+    ui->setupUi(this);
+    setWindowFlag(Qt::WindowStaysOnTopHint, true);//置顶显示
+    showFullScreen();//全屏显示
 }
-/**
- * @brief 系统配置信息修改对话框
- */
-class SystemConfigSettingDialog : public QDialog {
-    Q_OBJECT
-  public:
-    explicit SystemConfigSettingDialog(QWidget *parent = 0);
-    ~SystemConfigSettingDialog();
 
-  private slots:
-    void on_checkBox_is_have_parent_stateChanged(int arg1);
+RestaurantCheckstandForm::~RestaurantCheckstandForm() {
+    delete ui;
+}
 
-    void on_pushButton_yes_clicked();
+void RestaurantCheckstandForm::closeEvent(QCloseEvent *event) {
+    emit WidgetClose();
+    QWidget::closeEvent(event);
+}
 
-    void on_pushButton_no_clicked();
-
-  private:
-    Ui::SystemConfigSettingDialog *ui;
-};
-
-#endif // SYSTEM_CONFIG_SETTING_DIALOG_H
+void RestaurantCheckstandForm::on_pushButton_clicked() {
+    emit WidgetClose();
+    close();
+}

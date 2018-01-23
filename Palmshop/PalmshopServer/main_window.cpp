@@ -23,9 +23,14 @@ limitations under the License.
 #include "predef.h"
 #include "system_config_manager.h"
 #include "user_interface/system_config_setting_dialog.h"
-#include "data_base/restaurant_db_initialization.h"
 #include "user_interface/login_dialog.h"
+
+//餐饮类相关
+#include "data_base/restaurant_db_initialization.h"
 #include "data_base/restaurant_sql_command.h"
+#include "user_interface/restaurant_checkstand_form.h"
+
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -48,9 +53,10 @@ MainWindow::MainWindow(QWidget *parent) :
     if(!SystemConfigManager::GetInstance()->user_is_admin()) {
         //非管理员用户隐藏用户管理
         ui->menu_admin->menuAction()->setVisible(false);
+        //隐藏个人信息修改
+        ui->action_information_modification->setVisible(false);
     } else {
         //管理员用户具有用户管理、系统配置等功能
-
         //管理员专用菜单栏信号槽
         //系统配置按钮
         connect(ui->action_admin_config, &QAction::triggered, []() {
@@ -73,6 +79,16 @@ MainWindow::MainWindow(QWidget *parent) :
             exit(0);
         }
     });
+    //收银
+    connect(ui->action_cashier, &QAction::triggered, []() {
+        RestaurantCheckstandForm restaurant_form;
+        restaurant_form.show();
+        //阻塞主窗口
+        QEventLoop loop;
+        connect(&restaurant_form, SIGNAL(WidgetClose()), &loop, SLOT(quit()));
+        loop.exec(QEventLoop::AllEvents);
+    });
+
 }
 
 MainWindow::~MainWindow() {

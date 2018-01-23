@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>821</width>
-    <height>493</height>
+    <height>514</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,9 +30,6 @@
     <property name="bottomMargin">
      <number>0</number>
     </property>
-    <item>
-     <widget class="QWidget" name="widget" native="true"/>
-    </item>
    </layout>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -53,7 +50,7 @@
     <addaction name="separator"/>
     <addaction name="action_exit"/>
    </widget>
-   <widget class="QMenu" name="menu">
+   <widget class="QMenu" name="menu_about">
     <property name="title">
      <string>关于</string>
     </property>
@@ -67,15 +64,24 @@
      <property name="title">
       <string>用户管理</string>
      </property>
-     <addaction name="action"/>
-     <addaction name="action_2"/>
+     <addaction name="action_admin_new_user"/>
+     <addaction name="action_admin_show_users"/>
     </widget>
     <addaction name="action_admin_config"/>
     <addaction name="menu_admin_user_manager"/>
    </widget>
+   <widget class="QMenu" name="menu_function">
+    <property name="title">
+     <string>功能</string>
+    </property>
+    <addaction name="action_cashier"/>
+    <addaction name="separator"/>
+    <addaction name="action_information_modification"/>
+   </widget>
    <addaction name="menuPalmshop"/>
+   <addaction name="menu_function"/>
    <addaction name="menu_admin"/>
-   <addaction name="menu"/>
+   <addaction name="menu_about"/>
   </widget>
   <action name="action_admin_config">
    <property name="checkable">
@@ -105,14 +111,24 @@
     <string>帮助</string>
    </property>
   </action>
-  <action name="action">
+  <action name="action_admin_new_user">
    <property name="text">
     <string>新建用户</string>
    </property>
   </action>
-  <action name="action_2">
+  <action name="action_admin_show_users">
    <property name="text">
     <string>查看用户</string>
+   </property>
+  </action>
+  <action name="action_cashier">
+   <property name="text">
+    <string>收银</string>
+   </property>
+  </action>
+  <action name="action_information_modification">
+   <property name="text">
+    <string>个人信息修改</string>
    </property>
   </action>
  </widget>
